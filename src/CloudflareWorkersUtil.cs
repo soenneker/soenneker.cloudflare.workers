@@ -53,7 +53,7 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         try
         {
             Worker_script_download_worker_Response_200_multipart_form_data? result =
-                await client.Accounts[accountId].Workers.Scripts[name].GetAsync(null, null, cancellationToken);
+                await client.Accounts[accountId].Workers.Scripts[name].GetAsync(cancellationToken: cancellationToken);
             _logger.LogInformation("Successfully retrieved Worker {Name}", name);
             return result;
         }
@@ -73,7 +73,8 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken);
         try
         {
-            await client.Accounts[accountId].Workers.Scripts[name].DeleteAsync(null, null, cancellationToken);
+            var body = new Worker_script_delete_worker_RequestBody_application_json();
+            await client.Accounts[accountId].Workers.Scripts[name].DeleteAsync(body, cancellationToken: cancellationToken);
             _logger.LogInformation("Successfully deleted Worker {Name}", name);
         }
         catch (Exception ex)
@@ -89,9 +90,9 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken);
         try
         {
-            Workers_scriptResponseCollection? result = await client.Accounts[accountId].Workers.Scripts.GetAsync(null, null, cancellationToken);
+            Workers_scriptResponseCollection? result = await client.Accounts[accountId].Workers.Scripts.GetAsync(cancellationToken: cancellationToken);
             _logger.LogInformation("Successfully listed Workers");
-            return result.Result;
+            return result != null && result.Result != null ? result.Result : new List<Workers_scriptResponse>();
         }
         catch (Exception ex)
         {
@@ -126,12 +127,12 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         {
             var domain = new Worker_domain_attach_to_domain_RequestBody_application_json
             {
-                Hostname = new Workers_hostname {Value = domainName},
-                ZoneId = new Workers_zone_identifier {Value = zoneId},
-                Service = new Workers_schemasService {Value = workerName}
+                Hostname = domainName,
+                ZoneId = zoneId,
+                Service = workerName
             };
 
-            Workers_domainResponseSingle? result = await client.Accounts[accountId].Workers.Domains.PutAsync(domain, null, cancellationToken);
+            Workers_domainResponseSingle? result = await client.Accounts[accountId].Workers.Domains.PutAsync(domain, cancellationToken: cancellationToken);
             _logger.LogInformation("Successfully added custom domain {DomainName} to Worker {WorkerName}", domainName, workerName);
             return result;
         }
@@ -149,7 +150,7 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         try
         {
             var body = new Worker_domain_detach_from_domain_RequestBody_application_json();
-            await client.Accounts[accountId].Workers.Domains[domainId].DeleteAsync(body, null, cancellationToken);
+            await client.Accounts[accountId].Workers.Domains[domainId].DeleteAsync(body, cancellationToken: cancellationToken);
             _logger.LogInformation("Successfully removed custom domain {DomainId} from Worker", domainId);
         }
         catch (Exception ex)
@@ -165,10 +166,9 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken);
         try
         {
-            var body = new Worker_domain_list_domains_RequestBody_application_json();
-            Workers_domainResponseCollection? result = await client.Accounts[accountId].Workers.Domains.GetAsync(body, null, cancellationToken);
+            Workers_domainResponseCollection? result = await client.Accounts[accountId].Workers.Domains.GetAsync(cancellationToken: cancellationToken);
             _logger.LogInformation("Successfully listed custom domains for Workers");
-            return result.Result;
+            return result != null && result.Result != null ? result.Result : new List<Workers_domain>();
         }
         catch (Exception ex)
         {
