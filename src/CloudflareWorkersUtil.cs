@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace Soenneker.Cloudflare.Workers;
 
@@ -173,6 +174,71 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to list custom domains for Workers");
+            throw;
+        }
+    }
+
+    public async ValueTask<Workers_scriptResponseSingle?> CreateFromGit(string accountId, string name, string owner, string repository,
+        CancellationToken cancellationToken = default)
+    {
+        string repositoryUrl = $"https://github.com/{owner}/{repository}";
+        return await CreateFromGit(accountId, name, repositoryUrl, cancellationToken);
+    }
+
+    public async ValueTask<Workers_scriptResponseSingle?> CreateFromGit(string accountId, string name, string repositoryUrl,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Creating Worker {Name} from Git repository {RepositoryUrl} in account {AccountId}", name, repositoryUrl, accountId);
+        CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken);
+        try
+        {
+            // Extract owner and repo from the URL
+            string[] parts = repositoryUrl.Split('/');
+            string owner = parts[3];
+            string repo = parts[4].Replace(".git", "");
+
+            // Create the Worker with Git configuration
+            var multipartBody = new MultipartBody();
+
+            // Add the metadata with the correct structure
+            var metadata = new
+            {
+                main_module = "src/index.js",
+                compatibility_date = DateTime.UtcNow.ToString("yyyy-MM-dd"),
+                compatibility_flags = Array.Empty<string>(),
+                usage_model = "bundled",
+                bindings = Array.Empty<object>(),
+                migrations = Array.Empty<object>(),
+                tags = Array.Empty<string>(),
+                body_part = "script",
+                git = new
+                {
+                    repository = repositoryUrl,
+                    branch = "main",
+                    owner = owner,
+                    repo = repo
+                }
+            };
+
+            // Add the metadata as a part
+            multipartBody.AddOrReplacePart("metadata", "application/json", JsonSerializer.Serialize(metadata, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }));
+
+            // Add an empty script part (required by the API)
+            multipartBody.AddOrReplacePart("script", "application/javascript", "");
+
+            // Create the Worker
+            Workers_scriptResponseSingle? result =
+                await client.Accounts[accountId].Workers.Scripts[name].Content.PutAsync(multipartBody, null, cancellationToken);
+
+            _logger.LogInformation("Successfully created Worker {Name} from Git repository", name);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create Worker {Name} from Git repository", name);
             throw;
         }
     }
