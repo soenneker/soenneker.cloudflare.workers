@@ -86,25 +86,4 @@ public interface ICloudflareWorkersUtil
     /// <param name="accountId">The ID of the account</param>
     /// <param name="cancellationToken">The cancellation token</param>
     ValueTask<IEnumerable<Workers_domain>> ListCustomDomains(string accountId, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Creates a Worker from a GitHub repository using owner and repository name
-    /// </summary>
-    /// <param name="accountId">The ID of the account</param>
-    /// <param name="name">The name of the Worker</param>
-    /// <param name="owner">The GitHub repository owner</param>
-    /// <param name="repository">The GitHub repository name</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    ValueTask<Workers_scriptResponseSingle?> CreateFromGit(string accountId, string name, string owner, string repository,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Creates a Worker from a Git repository URL
-    /// </summary>
-    /// <param name="accountId">The ID of the account</param>
-    /// <param name="name">The name of the Worker</param>
-    /// <param name="repositoryUrl">The Git repository URL</param>
-    /// <param name="cancellationToken">The cancellation token</param>
-    ValueTask<Workers_scriptResponseSingle?> CreateFromGit(string accountId, string name, string repositoryUrl,
-        CancellationToken cancellationToken = default);
 }
