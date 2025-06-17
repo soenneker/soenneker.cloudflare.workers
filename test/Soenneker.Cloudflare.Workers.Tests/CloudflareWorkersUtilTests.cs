@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Soenneker.Cloudflare.Workers.Abstract;
-using Soenneker.Extensions.Configuration;
 using Soenneker.Facts.Local;
 using Soenneker.Tests.FixturedUnit;
 using System.Threading.Tasks;

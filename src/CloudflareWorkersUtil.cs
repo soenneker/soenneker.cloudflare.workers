@@ -9,7 +9,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text.Json;
+using Soenneker.Cloudflare.OpenApiClient.Accounts.Item.Workers.Scripts.Item;
+using Soenneker.Cloudflare.OpenApiClient.Accounts.Item.Workers.Domains.Item;
 
 namespace Soenneker.Cloudflare.Workers;
 
@@ -46,14 +47,14 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         }
     }
 
-    public async ValueTask<Worker_script_download_worker_Response_200_multipart_form_data?> Get(string accountId, string name,
+    public async ValueTask<Worker_script_download_worker_200_Response_multipart_form_data?> Get(string accountId, string name,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Getting Worker {Name} from account {AccountId}", name, accountId);
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken);
         try
         {
-            Worker_script_download_worker_Response_200_multipart_form_data? result =
+            Worker_script_download_worker_200_Response_multipart_form_data? result =
                 await client.Accounts[accountId].Workers.Scripts[name].GetAsync(cancellationToken: cancellationToken);
             _logger.LogInformation("Successfully retrieved Worker {Name}", name);
             return result;
@@ -74,7 +75,7 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken);
         try
         {
-            var body = new Worker_script_delete_worker_RequestBody_application_json();
+            var body = new WithScript_nameDeleteRequestBody();
             await client.Accounts[accountId].Workers.Scripts[name].DeleteAsync(body, cancellationToken: cancellationToken);
             _logger.LogInformation("Successfully deleted Worker {Name}", name);
         }
@@ -126,7 +127,7 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken);
         try
         {
-            var domain = new Worker_domain_attach_to_domain_RequestBody_application_json
+            var domain = new Worker_domain_attach_to_domain
             {
                 Hostname = domainName,
                 ZoneId = zoneId,
@@ -150,7 +151,7 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken);
         try
         {
-            var body = new Worker_domain_detach_from_domain_RequestBody_application_json();
+            var body = new WithDomain_DeleteRequestBody();
             await client.Accounts[accountId].Workers.Domains[domainId].DeleteAsync(body, cancellationToken: cancellationToken);
             _logger.LogInformation("Successfully removed custom domain {DomainId} from Worker", domainId);
         }

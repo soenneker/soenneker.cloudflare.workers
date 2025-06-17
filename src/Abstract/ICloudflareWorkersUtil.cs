@@ -25,7 +25,7 @@ public interface ICloudflareWorkersUtil
     /// <param name="accountId">The ID of the account</param>
     /// <param name="name">The name of the Worker</param>
     /// <param name="cancellationToken">The cancellation token</param>
-    ValueTask<Worker_script_download_worker_Response_200_multipart_form_data?>
+    ValueTask<Worker_script_download_worker_200_Response_multipart_form_data?>
         Get(string accountId, string name, CancellationToken cancellationToken = default);
 
     /// <summary>
