@@ -1,16 +1,18 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Kiota.Abstractions;
 using Soenneker.Cloudflare.OpenApiClient;
+using Soenneker.Cloudflare.OpenApiClient.Accounts.Item.Workers.Domains.Item;
+using Soenneker.Cloudflare.OpenApiClient.Accounts.Item.Workers.Scripts.Item;
 using Soenneker.Cloudflare.OpenApiClient.Models;
 using Soenneker.Cloudflare.Utils.Client.Abstract;
 using Soenneker.Cloudflare.Workers.Abstract;
+using Soenneker.Extensions.Task;
+using Soenneker.Extensions.ValueTask;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Cloudflare.OpenApiClient.Accounts.Item.Workers.Scripts.Item;
-using Soenneker.Cloudflare.OpenApiClient.Accounts.Item.Workers.Domains.Item;
 
 namespace Soenneker.Cloudflare.Workers;
 
@@ -26,17 +28,17 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         _logger = logger;
     }
 
-    public async ValueTask<Workers_scriptResponseSingle?> Create(string accountId, string name, string scriptContent,
+    public async ValueTask<Workers_script_response_single?> Create(string accountId, string name, string scriptContent,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Creating or updating Worker {Name} in account {AccountId}", name, accountId);
-        CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken);
+        CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
         try
         {
             var multipartBody = new MultipartBody();
             multipartBody.AddOrReplacePart("script", "text/plain", scriptContent);
-            Workers_scriptResponseSingle? result =
-                await client.Accounts[accountId].Workers.Scripts[name].Content.PutAsync(multipartBody, null, cancellationToken);
+            Workers_script_response_single? result =
+                await client.Accounts[accountId].Workers.Scripts[name].Content.PutAsync(multipartBody, null, cancellationToken).NoSync();
             _logger.LogInformation("Successfully created or updated Worker {Name}", name);
             return result;
         }
@@ -51,11 +53,11 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Getting Worker {Name} from account {AccountId}", name, accountId);
-        CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken);
+        CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
         try
         {
             Worker_script_download_worker_200_Response_multipart_form_data? result =
-                await client.Accounts[accountId].Workers.Scripts[name].GetAsync(cancellationToken: cancellationToken);
+                await client.Accounts[accountId].Workers.Scripts[name].GetAsync(cancellationToken: cancellationToken).NoSync();
             _logger.LogInformation("Successfully retrieved Worker {Name}", name);
             return result;
         }
@@ -66,17 +68,17 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         }
     }
 
-    public ValueTask<Workers_scriptResponseSingle?> Update(string accountId, string name, string scriptContent,
+    public ValueTask<Workers_script_response_single?> Update(string accountId, string name, string scriptContent,
         CancellationToken cancellationToken = default) => Create(accountId, name, scriptContent, cancellationToken);
 
     public async ValueTask Delete(string accountId, string name, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Deleting Worker {Name} from account {AccountId}", name, accountId);
-        CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken);
+        CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
         try
         {
             var body = new WithScript_nameDeleteRequestBody();
-            await client.Accounts[accountId].Workers.Scripts[name].DeleteAsync(body, cancellationToken: cancellationToken);
+            await client.Accounts[accountId].Workers.Scripts[name].DeleteAsync(body, cancellationToken: cancellationToken).NoSync();
             _logger.LogInformation("Successfully deleted Worker {Name}", name);
         }
         catch (Exception ex)
@@ -86,15 +88,15 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         }
     }
 
-    public async ValueTask<IEnumerable<Workers_scriptResponse>> List(string accountId, CancellationToken cancellationToken = default)
+    public async ValueTask<IEnumerable<Workers_script_response>> List(string accountId, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Listing Workers in account {AccountId}", accountId);
-        CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken);
+        CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
         try
         {
-            Workers_scriptResponseCollection? result = await client.Accounts[accountId].Workers.Scripts.GetAsync(cancellationToken: cancellationToken);
+            Workers_script_response_collection? result = await client.Accounts[accountId].Workers.Scripts.GetAsync(cancellationToken: cancellationToken).NoSync();
             _logger.LogInformation("Successfully listed Workers");
-            return result != null && result.Result != null ? result.Result : new List<Workers_scriptResponse>();
+            return result != null && result.Result != null ? result.Result : new List<Workers_script_response>();
         }
         catch (Exception ex)
         {
@@ -103,15 +105,15 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         }
     }
 
-    public async ValueTask<Workers_scriptResponseSingle?> UploadFromFile(string accountId, string name, string filePath,
+    public async ValueTask<Workers_script_response_single?> UploadFromFile(string accountId, string name, string filePath,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Uploading Worker {Name} from file {FilePath}", name, filePath);
 
         try
         {
-            string scriptContent = await File.ReadAllTextAsync(filePath, cancellationToken);
-            return await Create(accountId, name, scriptContent, cancellationToken);
+            string scriptContent = await File.ReadAllTextAsync(filePath, cancellationToken).NoSync();
+            return await Create(accountId, name, scriptContent, cancellationToken).NoSync();
         }
         catch (Exception ex)
         {
@@ -120,11 +122,11 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         }
     }
 
-    public async ValueTask<Workers_domainResponseSingle> AddCustomDomain(string accountId, string workerName, string domainName, string zoneId,
+    public async ValueTask<Workers_domain_response_single> AddCustomDomain(string accountId, string workerName, string domainName, string zoneId,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Adding custom domain {DomainName} to Worker {WorkerName}", domainName, workerName);
-        CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken);
+        CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
         try
         {
             var domain = new Worker_domain_attach_to_domain
@@ -134,7 +136,7 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
                 Service = workerName
             };
 
-            Workers_domainResponseSingle? result = await client.Accounts[accountId].Workers.Domains.PutAsync(domain, cancellationToken: cancellationToken);
+            Workers_domain_response_single? result = await client.Accounts[accountId].Workers.Domains.PutAsync(domain, cancellationToken: cancellationToken).NoSync();
             _logger.LogInformation("Successfully added custom domain {DomainName} to Worker {WorkerName}", domainName, workerName);
             return result;
         }
@@ -148,11 +150,11 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
     public async ValueTask RemoveCustomDomain(string accountId, string domainId, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Removing custom domain {DomainId} from Worker", domainId);
-        CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken);
+        CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
         try
         {
             var body = new WithDomain_DeleteRequestBody();
-            await client.Accounts[accountId].Workers.Domains[domainId].DeleteAsync(body, cancellationToken: cancellationToken);
+            await client.Accounts[accountId].Workers.Domains[domainId].DeleteAsync(body, cancellationToken: cancellationToken).NoSync();
             _logger.LogInformation("Successfully removed custom domain {DomainId} from Worker", domainId);
         }
         catch (Exception ex)
@@ -165,10 +167,10 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
     public async ValueTask<IEnumerable<Workers_domain>> ListCustomDomains(string accountId, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Listing custom domains for Workers in account {AccountId}", accountId);
-        CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken);
+        CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
         try
         {
-            Workers_domainResponseCollection? result = await client.Accounts[accountId].Workers.Domains.GetAsync(cancellationToken: cancellationToken);
+            Workers_domain_response_collection? result = await client.Accounts[accountId].Workers.Domains.GetAsync(cancellationToken: cancellationToken).NoSync();
             _logger.LogInformation("Successfully listed custom domains for Workers");
             return result != null && result.Result != null ? result.Result : new List<Workers_domain>();
         }
