@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Soenneker.Cloudflare.OpenApiClient.Accounts.Item.Workers.Scripts.Item;
 using Soenneker.Cloudflare.OpenApiClient.Models;
 
 namespace Soenneker.Cloudflare.Workers.Abstract;
@@ -25,8 +26,7 @@ public interface ICloudflareWorkersUtil
     /// <param name="accountId">The ID of the account</param>
     /// <param name="name">The name of the Worker</param>
     /// <param name="cancellationToken">The cancellation token</param>
-    ValueTask<Worker_script_download_worker_200_Response_multipart_form_data?>
-        Get(string accountId, string name, CancellationToken cancellationToken = default);
+    ValueTask<WithScript_nameGetResponse?> Get(string accountId, string name, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Updates a Worker script (alias for Create)

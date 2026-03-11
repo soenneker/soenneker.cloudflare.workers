@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.Kiota.Abstractions;
 using Soenneker.Cloudflare.OpenApiClient;
 using Soenneker.Cloudflare.OpenApiClient.Accounts.Item.Workers.Domains.Item;
@@ -49,14 +49,14 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         }
     }
 
-    public async ValueTask<Worker_script_download_worker_200_Response_multipart_form_data?> Get(string accountId, string name,
+    public async ValueTask<WithScript_nameGetResponse?> Get(string accountId, string name,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Getting Worker {Name} from account {AccountId}", name, accountId);
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
         try
         {
-            Worker_script_download_worker_200_Response_multipart_form_data? result =
+            WithScript_nameGetResponse? result =
                 await client.Accounts[accountId].Workers.Scripts[name].GetAsync(cancellationToken: cancellationToken).NoSync();
             _logger.LogInformation("Successfully retrieved Worker {Name}", name);
             return result;
