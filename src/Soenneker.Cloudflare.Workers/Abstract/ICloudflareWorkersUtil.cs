@@ -69,7 +69,7 @@ public interface ICloudflareWorkersUtil
     /// <param name="domainName">The custom domain name to add</param>
     /// <param name="zoneId">The ID of the zone where the domain is registered</param>
     /// <param name="cancellationToken">The cancellation token</param>
-    ValueTask<Workers_domain_response_single> AddCustomDomain(string accountId, string workerName, string domainName, string zoneId,
+    ValueTask<Workers_domains_update_200?> AddCustomDomain(string accountId, string workerName, string domainName, string zoneId,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -85,5 +85,5 @@ public interface ICloudflareWorkersUtil
     /// </summary>
     /// <param name="accountId">The ID of the account</param>
     /// <param name="cancellationToken">The cancellation token</param>
-    ValueTask<IEnumerable<Workers_domain>> ListCustomDomains(string accountId, CancellationToken cancellationToken = default);
+    ValueTask<IEnumerable<Workers_Domain>> ListCustomDomains(string accountId, CancellationToken cancellationToken = default);
 }
