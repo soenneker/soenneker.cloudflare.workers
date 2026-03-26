@@ -7,6 +7,7 @@ using Soenneker.Cloudflare.Utils.Client.Abstract;
 using Soenneker.Cloudflare.Workers.Abstract;
 using Soenneker.Extensions.Task;
 using Soenneker.Extensions.ValueTask;
+using Soenneker.Utils.File.Abstract;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,11 +21,13 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
 {
     private readonly ILogger<CloudflareWorkersUtil> _logger;
     private readonly ICloudflareClientUtil _clientUtil;
+    private readonly IFileUtil _fileUtil;
 
-    public CloudflareWorkersUtil(ICloudflareClientUtil clientUtil, ILogger<CloudflareWorkersUtil> logger)
+    public CloudflareWorkersUtil(ICloudflareClientUtil clientUtil, ILogger<CloudflareWorkersUtil> logger, IFileUtil fileUtil)
     {
         _clientUtil = clientUtil;
         _logger = logger;
+        _fileUtil = fileUtil;
     }
 
     public async ValueTask<Workers_script_response_single?> Create(string accountId, string name, string scriptContent,
@@ -111,7 +114,7 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
 
         try
         {
-            string scriptContent = await File.ReadAllTextAsync(filePath, cancellationToken).NoSync();
+            string scriptContent = await _fileUtil.Read(filePath, log: false, cancellationToken).NoSync();
             return await Create(accountId, name, scriptContent, cancellationToken).NoSync();
         }
         catch (Exception ex)
