@@ -1,31 +1,30 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Soenneker.Cloudflare.Workers.Abstract;
-using Soenneker.Facts.Local;
-using Soenneker.Tests.FixturedUnit;
+using Soenneker.Tests.Attributes.Local;
+using Soenneker.Tests.HostedUnit;
 using System.Threading.Tasks;
-using Xunit;
 
 namespace Soenneker.Cloudflare.Workers.Tests;
 
-[Collection("Collection")]
-public sealed class CloudflareWorkersUtilTests : FixturedUnitTest
+[ClassDataSource<Host>(Shared = SharedType.PerTestSession)]
+public sealed class CloudflareWorkersUtilTests : HostedUnitTest
 {
     private readonly ICloudflareWorkersUtil _util;
     private readonly IConfiguration _config;
 
-    public CloudflareWorkersUtilTests(Fixture fixture, ITestOutputHelper output) : base(fixture, output)
+    public CloudflareWorkersUtilTests(Host host) : base(host)
     {
         _util = Resolve<ICloudflareWorkersUtil>(true);
         _config = Resolve<IConfiguration>();
     }
 
-    [Fact]
+    [Test]
     public void Default()
     {
 
     }
 
-    [LocalFact]
+    [LocalOnly]
     public async ValueTask CreateFromGit()
     { 
 
