@@ -18,7 +18,7 @@ public interface ICloudflareWorkersUtil
     /// <param name="name">The name of the Worker</param>
     /// <param name="scriptContent">The content of the Worker script</param>
     /// <param name="cancellationToken">The cancellation token</param>
-    ValueTask<Workers_script_response_single?> Create(string accountId, string name, string scriptContent, CancellationToken cancellationToken = default);
+    ValueTask<WorkersScriptResponseSingle?> Create(string accountId, string name, string scriptContent, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a Worker script by name
@@ -26,7 +26,7 @@ public interface ICloudflareWorkersUtil
     /// <param name="accountId">The ID of the account</param>
     /// <param name="name">The name of the Worker</param>
     /// <param name="cancellationToken">The cancellation token</param>
-    ValueTask<WithScript_nameGetResponse?> Get(string accountId, string name, CancellationToken cancellationToken = default);
+    ValueTask<string?> Get(string accountId, string name, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Updates a Worker script (alias for Create)
@@ -35,7 +35,7 @@ public interface ICloudflareWorkersUtil
     /// <param name="name">The name of the Worker</param>
     /// <param name="scriptContent">The content of the Worker script</param>
     /// <param name="cancellationToken">The cancellation token</param>
-    ValueTask<Workers_script_response_single?> Update(string accountId, string name, string scriptContent, CancellationToken cancellationToken = default);
+    ValueTask<WorkersScriptResponseSingle?> Update(string accountId, string name, string scriptContent, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes a Worker script
@@ -50,7 +50,7 @@ public interface ICloudflareWorkersUtil
     /// </summary>
     /// <param name="accountId">The ID of the account</param>
     /// <param name="cancellationToken">The cancellation token</param>
-    ValueTask<IEnumerable<Workers_script_response>> List(string accountId, CancellationToken cancellationToken = default);
+    ValueTask<IEnumerable<WorkersScriptResponseCollection_result>> List(string accountId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Uploads a Worker script from a file
@@ -59,7 +59,7 @@ public interface ICloudflareWorkersUtil
     /// <param name="name">The name of the Worker</param>
     /// <param name="filePath">The path to the script file</param>
     /// <param name="cancellationToken">The cancellation token</param>
-    ValueTask<Workers_script_response_single?> UploadFromFile(string accountId, string name, string filePath, CancellationToken cancellationToken = default);
+    ValueTask<WorkersScriptResponseSingle?> UploadFromFile(string accountId, string name, string filePath, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Adds a custom domain to a Worker
@@ -69,7 +69,7 @@ public interface ICloudflareWorkersUtil
     /// <param name="domainName">The custom domain name to add</param>
     /// <param name="zoneId">The ID of the zone where the domain is registered</param>
     /// <param name="cancellationToken">The cancellation token</param>
-    ValueTask<Workers_domains_update_200?> AddCustomDomain(string accountId, string workerName, string domainName, string zoneId,
+    ValueTask<WorkersDomainsUpdate200?> AddCustomDomain(string accountId, string workerName, string domainName, string zoneId,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -85,5 +85,5 @@ public interface ICloudflareWorkersUtil
     /// </summary>
     /// <param name="accountId">The ID of the account</param>
     /// <param name="cancellationToken">The cancellation token</param>
-    ValueTask<IEnumerable<Workers_Domain>> ListCustomDomains(string accountId, CancellationToken cancellationToken = default);
+    ValueTask<IEnumerable<WorkersDomain>> ListCustomDomains(string accountId, CancellationToken cancellationToken = default);
 }

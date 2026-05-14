@@ -30,7 +30,7 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         _fileUtil = fileUtil;
     }
 
-    public async ValueTask<Workers_script_response_single?> Create(string accountId, string name, string scriptContent,
+    public async ValueTask<WorkersScriptResponseSingle?> Create(string accountId, string name, string scriptContent,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Creating or updating Worker {Name} in account {AccountId}", name, accountId);
@@ -39,7 +39,7 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         {
             var multipartBody = new MultipartBody();
             multipartBody.AddOrReplacePart("script", "text/plain", scriptContent);
-            Workers_script_response_single? result =
+            WorkersScriptResponseSingle? result =
                 await client.Accounts[accountId].Workers.Scripts[name].Content.PutAsync(multipartBody, null, cancellationToken).NoSync();
             _logger.LogInformation("Successfully created or updated Worker {Name}", name);
             return result;
@@ -51,15 +51,14 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         }
     }
 
-    public async ValueTask<WithScript_nameGetResponse?> Get(string accountId, string name,
+    public async ValueTask<string?> Get(string accountId, string name,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Getting Worker {Name} from account {AccountId}", name, accountId);
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
         try
         {
-            WithScript_nameGetResponse? result =
-                await client.Accounts[accountId].Workers.Scripts[name].GetAsync(cancellationToken: cancellationToken).NoSync();
+            string? result = await client.Accounts[accountId].Workers.Scripts[name].GetAsync(cancellationToken: cancellationToken).NoSync();
             _logger.LogInformation("Successfully retrieved Worker {Name}", name);
             return result;
         }
@@ -70,7 +69,7 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         }
     }
 
-    public ValueTask<Workers_script_response_single?> Update(string accountId, string name, string scriptContent,
+    public ValueTask<WorkersScriptResponseSingle?> Update(string accountId, string name, string scriptContent,
         CancellationToken cancellationToken = default) => Create(accountId, name, scriptContent, cancellationToken);
 
     public async ValueTask Delete(string accountId, string name, CancellationToken cancellationToken = default)
@@ -90,15 +89,15 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         }
     }
 
-    public async ValueTask<IEnumerable<Workers_script_response>> List(string accountId, CancellationToken cancellationToken = default)
+    public async ValueTask<IEnumerable<WorkersScriptResponseCollection_result>> List(string accountId, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Listing Workers in account {AccountId}", accountId);
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
         try
         {
-            Workers_script_response_collection? result = await client.Accounts[accountId].Workers.Scripts.GetAsync(cancellationToken: cancellationToken).NoSync();
+            WorkersScriptResponseCollection? result = await client.Accounts[accountId].Workers.Scripts.GetAsync(cancellationToken: cancellationToken).NoSync();
             _logger.LogInformation("Successfully listed Workers");
-            return result != null && result.Result != null ? result.Result : new List<Workers_script_response>();
+            return result != null && result.Result != null ? result.Result : new List<WorkersScriptResponseCollection_result>();
         }
         catch (Exception ex)
         {
@@ -107,7 +106,7 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         }
     }
 
-    public async ValueTask<Workers_script_response_single?> UploadFromFile(string accountId, string name, string filePath,
+    public async ValueTask<WorkersScriptResponseSingle?> UploadFromFile(string accountId, string name, string filePath,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Uploading Worker {Name} from file {FilePath}", name, filePath);
@@ -124,21 +123,21 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         }
     }
 
-    public async ValueTask<Workers_domains_update_200?> AddCustomDomain(string accountId, string workerName, string domainName, string zoneId,
+    public async ValueTask<WorkersDomainsUpdate200?> AddCustomDomain(string accountId, string workerName, string domainName, string zoneId,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Adding custom domain {DomainName} to Worker {WorkerName}", domainName, workerName);
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
         try
         {
-            var domain = new Workers_domains_update
+            var domain = new WorkersDomainsUpdate
             {
                 Hostname = domainName,
                 ZoneId = zoneId,
                 Service = workerName
             };
 
-            Workers_domains_update_200? result = await client.Accounts[accountId].Workers.Domains.PutAsync(domain, cancellationToken: cancellationToken).NoSync();
+            WorkersDomainsUpdate200? result = await client.Accounts[accountId].Workers.Domains.PutAsync(domain, cancellationToken: cancellationToken).NoSync();
             _logger.LogInformation("Successfully added custom domain {DomainName} to Worker {WorkerName}", domainName, workerName);
             return result;
         }
@@ -165,15 +164,15 @@ public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
         }
     }
 
-    public async ValueTask<IEnumerable<Workers_Domain>> ListCustomDomains(string accountId, CancellationToken cancellationToken = default)
+    public async ValueTask<IEnumerable<WorkersDomain>> ListCustomDomains(string accountId, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Listing custom domains for Workers in account {AccountId}", accountId);
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
         try
         {
-            Workers_domains_list_200? result = await client.Accounts[accountId].Workers.Domains.GetAsync(cancellationToken: cancellationToken).NoSync();
+            WorkersDomainsList200? result = await client.Accounts[accountId].Workers.Domains.GetAsync(cancellationToken: cancellationToken).NoSync();
             _logger.LogInformation("Successfully listed custom domains for Workers");
-            return result != null && result.Result != null ? result.Result : new List<Workers_Domain>();
+            return result != null && result.Result != null ? result.Result : new List<WorkersDomain>();
         }
         catch (Exception ex)
         {
