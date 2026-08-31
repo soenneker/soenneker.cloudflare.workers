@@ -16,7 +16,7 @@ public static class CloudflareWorkersUtilRegistrar
     /// </summary>
     public static IServiceCollection AddCloudflareWorkersUtilAsSingleton(this IServiceCollection services)
     {
-        services.AddCloudflareClientUtilAsSingleton().AddFileUtilAsScoped().TryAddSingleton<ICloudflareWorkersUtil, CloudflareWorkersUtil>();
+        services.AddCloudflareClientUtilAsSingleton().AddFileUtilAsSingleton().TryAddSingleton<ICloudflareWorkersUtil, CloudflareWorkersUtil>();
 
         return services;
     }
