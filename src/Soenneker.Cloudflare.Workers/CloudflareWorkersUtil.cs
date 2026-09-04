@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 
 namespace Soenneker.Cloudflare.Workers;
 
+/// <inheritdoc cref="ICloudflareWorkersUtil" />
 public sealed class CloudflareWorkersUtil : ICloudflareWorkersUtil
 {
     private readonly ILogger<CloudflareWorkersUtil> _logger;
