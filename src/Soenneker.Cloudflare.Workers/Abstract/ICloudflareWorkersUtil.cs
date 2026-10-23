@@ -50,7 +50,7 @@ public interface ICloudflareWorkersUtil
     /// </summary>
     /// <param name="accountId">The ID of the account</param>
     /// <param name="cancellationToken">The cancellation token</param>
-    ValueTask<IEnumerable<WorkersScriptResponseCollection_result>> List(string accountId, CancellationToken cancellationToken = default);
+    ValueTask<IEnumerable<WorkersScriptResponseCollectionAllOf2ResultItem>> List(string accountId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Uploads a Worker script from a file
@@ -69,7 +69,7 @@ public interface ICloudflareWorkersUtil
     /// <param name="domainName">The custom domain name to add</param>
     /// <param name="zoneId">The ID of the zone where the domain is registered</param>
     /// <param name="cancellationToken">The cancellation token</param>
-    ValueTask<WorkersDomainsUpdate200?> AddCustomDomain(string accountId, string workerName, string domainName, string zoneId,
+    ValueTask<WorkersDomainsUpdate200Response?> AddCustomDomain(string accountId, string workerName, string domainName, string zoneId,
         CancellationToken cancellationToken = default);
 
     /// <summary>
